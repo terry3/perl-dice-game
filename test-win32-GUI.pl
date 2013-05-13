@@ -9,8 +9,11 @@ my $dice_size = 5;
 my $main = Win32::GUI::Window->new(
   -name => 'Main',
   -text => 'Perl',
-  -width => 192 * 5 + 20,
-  -height => 300,
+  -width => 192 * 5,
+  -height => 285,
+  -hasmaximize => 0,
+  -sizable => 0,
+  -resizable => 0,
     );
 my $font = Win32::GUI::Font->new(
   -name => "Comic Sans MS",
@@ -46,16 +49,15 @@ sub delete_duplicate_in_array{
   }
   $flag;
 }
-my $image_test = get_bitmap_object("bing", \@begin_end_img_array);
-my $image_test_change = get_bitmap_object("bebo", \@begin_end_img_array);
+my $img_roll_begin = get_bitmap_object("roll_begin", \@begin_end_img_array);
+my $img_roll_stop = get_bitmap_object("roll_stop", \@begin_end_img_array);
 my $width_base = 192;
-say Dumper(@begin_end_img_array);
+# say Dumper(@begin_end_img_array);
 my $roll_button = $main->AddButton(
   -name => "roll_button",
-  -text => "roll",
-  -width => 800,
+  -width => 953,
   -height => 64,
-  -bitmap => $image_test,
+  -bitmap => $img_roll_begin,
   -top => 192,
     );
 for(1..6){
@@ -68,11 +70,11 @@ for (1..$dice_size){
     -parent => $main,           # must assign the PARENT!!
     -left => ($_ - 1) * $width_base,
       );
-  say 'haha ' . $_ . '   ' . Dumper($dice_label_array[$_ - 1]);
+#  say 'haha ' . $_ . '   ' . Dumper($dice_label_array[$_ - 1]);
   $main->AddLabel($dice_label_array[$_ - 1]);
 }
 
-say Dumper(@dice_label_array);
+# say Dumper(@dice_label_array);
 my $t1 = $main->AddTimer('T1', 0);
 
 sub T1_Timer {
@@ -85,18 +87,30 @@ sub T1_Timer {
 
 sub roll_button_Click{
   state  $n = 0;
-  say "Roll button click.";
+#  say "Roll button click.";
   $n = 0 if ++$n >= scalar(@begin_end_img_array);
   $roll_button->SetImage($begin_end_img_array[$n]);
   my $tmp_interval = $t1->Interval();
   if($tmp_interval == 0){
-    $t1->Interval(200);
+    $t1->Interval(100);
   }
   else{
     $t1->Interval(0);
   }
 }
 
+my $ncw = $main->Width() - $main->ScaleWidth();
+my $nch = $main->Height() - $main->ScaleHeight();
+my $w = 192* 5  + $ncw;
+my $h = 285 + $nch;
+
+my $desk = Win32::GUI::GetDesktopWindow();
+my $dw = Win32::GUI::Width($desk);
+my $dh = Win32::GUI::Height($desk);
+my $x = ($dw - $w) / 2;
+my $y = ($dh - $h) / 2;
+
+$main->Move($x, $y);            # move the window to the screen center.
 $main->Show();
 
 Win32::GUI::Dialog();
